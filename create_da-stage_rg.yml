@@ -1,0 +1,15 @@
+- name: Create Resource Group DeepAlpha-Stage
+  hosts: localhost
+  connection: local
+
+  tasks:
+
+   - name: Create a resource group
+     azure_rm_resourcegroup:
+        name: DeepAlpha-Stage
+        location: northeurope
+        tags:
+           project: DeepAlpha
+           phase: stage
+        #force_delete_nonempty: yes
+        state: present
