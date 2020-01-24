@@ -1,0 +1,53 @@
+- name: Create VM, Private/Public IP, NIC for Ansible AWX (open source Tower)
+  hosts: localhost
+  connection: local
+
+  tasks:
+
+   - name: Create public ip
+     azure_rm_publicipaddress:
+        resource_group: BackOffice
+        allocation_method: Static
+        name: awx
+        domain_name: awxquantfolio
+
+   - name: Create virtual network interface card
+     azure_rm_networkinterface:
+      name: awx-nic1
+      resource_group: BackOffice
+      virtual_network: vnet-backoffice
+      subnet: back
+      public_ip_name: awx
+      security_group: NSG-BackOffice
+      ip_configurations:
+      - name: awx-ipconfig1
+        public_ip_address_name: awx
+        primary: True
+        private_ip_allocation_method: Dynamic
+        public_ip_allocation_method:  Dynamic
+
+   - name: Create virtual machine
+     azure_rm_virtualmachine:
+        resource_group: BackOffice
+        name: awx
+        location: northeurope
+        vm_size: Standard_B2ms
+        storage_account: backofficediag986
+        storage_container: awx
+        storage_blob: awx-os.vhd
+        admin_username: christer
+        admin_password: asdQWE123
+        #ssh_password_enabled: false
+          #ssh_public_keys:
+          #  - path: C:\Users\ChristerJohannessen\.ssh\id_rsa/authorized_keys
+          #    key_data: < insert yor ssh public key here... >
+        managed_disk_type: Standard_LRS
+        #network_interface_names: 
+        network_interfaces: awx-nic1
+        image:
+          offer: UbuntuServer
+          publisher: Canonical
+          sku: 18.04-LTS
+          version: latest
+        #remove_on_absent: all_autocreated
+        #state: present

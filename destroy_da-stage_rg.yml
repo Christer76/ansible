@@ -1,0 +1,12 @@
+- name: Destroy Resource Group
+  hosts: localhost
+  connection: local
+
+  tasks:
+
+   - name: Destroy resource group DeepAlpha-Stage
+     azure_rm_resourcegroup:
+        name: DeepAlpha-Stage
+        location: northeurope
+        force_delete_nonempty: yes
+        state: absent
