@@ -1,0 +1,37 @@
+How to Install Ansible AWX with Nginx Reverse Proxy on Ubuntu 18.04 LTS
+https://www.howtoforge.com/how-to-install-ansible-awx-with-nginx-reverse-proxy-on-ubuntu-1804/
+
+https://vitux.com/ubuntu-command-line-trash-bin/
+
+https://docs.microsoft.com/en-us/cli/azure/get-started-with-azure-cli?view=azure-cli-latest
+az interactive
+
+https://dev.to/dploeger/better-ansible-playbook-output-in-teamcity-11al
+
+https://octopus.com/blog/octopus-ansible
+
+https://www.redpill-linpro.com/sysadvent/2017/12/24/ansible-system-updates.html
+
+https://www.tderflinger.com/en/ansible-node
+
+https://github.com/nbkr/ansibletutorial
+
+
+yum groupinstall - What is this, and is there an apt alternative?
+
+secret key for the awx
+29a369466909c5bc8bbb8d1c1b4cfb0f4f962a55ee84b4f427596b49600b646b
+
+pg_username=awx
+pg_password=awxpass
+pg_port=5432
+
+rabbitmq_password=awxpass
+rabbitmq_erlang_cookie=cookiemonster
+
+admin_user=admin
+admin_password=password
+
+GitHub personal access token
+14513bb4d96e54d72c695ed967db9277780a5332
+
