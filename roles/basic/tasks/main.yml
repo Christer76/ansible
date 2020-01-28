@@ -1,0 +1,14 @@
+- name: Installing VIM
+  apt:
+    name: vim
+    state: latest
+
+- name: Installing DNS Utils
+  apt:
+    name: dnsutils
+    state: latest
+
+- name: Installing GIT
+  apt:
+    name: git
+    state: latest

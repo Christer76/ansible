@@ -1,0 +1,183 @@
+- name: Upgrade system
+  apt: upgrade=dist
+
+- name: Add ppa:ansible/ansible repository
+  apt_repository: repo=ppa:ansible/ansible
+
+- name: Enable universe repository
+  apt_repository:
+    repo: "{{ item }}"
+  loop:
+    - "deb http://archive.ubuntu.com/ubuntu/ bionic universe"
+    - "deb http://archive.ubuntu.com/ubuntu/ bionic-updates universe"
+    - "deb http://security.ubuntu.com/ubuntu/ bionic-security universe"
+
+- name: Add certbot repository
+  apt_repository: repo=ppa:certbot/certbot
+
+- name: Update repositories cache
+  apt: update_cache=yes
+
+- name: Installing ansible
+  apt: pkg=ansible state=present
+
+- name: Installing docker.io
+  apt: pkg=docker.io state=present
+
+- name: Installing python-pip
+  apt: pkg=python-pip state=present
+
+- name: Installing python3-pip
+  apt: pkg=python3-pip state=present
+
+- name: Installing Docker Compose python library using Ansible pip module
+  pip: name=docker-compose state=present
+
+- name: Installing Docker-py Python library using Ansible pip module
+  pip: name=docker-py state=present
+
+- name: Installing nodejs
+  apt: pkg=nodejs state=present
+
+- name: Install npm
+  apt: pkg=npm state=present
+
+- name: Installing npm globally using npm
+  npm: name=npm global=yes state=present
+
+#use npm module when this issue is resolved:
+#https://github.com/ansible/ansible-modules-extras/issues/137
+- name: make sure the latest npm is installed
+  command: npm install -g npm
+
+- name: Git Clone AWX repo
+  git: repo=https://github.com/ansible/awx.git dest=/usr/local/src/awx force=yes
+
+- name: Set AWX Postgres Data Directory to /var/lib/pgdocker in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^postgres_data_dir='
+    line: postgres_data_dir=/var/lib/pgdocker
+
+- name: Set AWX host_port to /var/lib/pgdocker in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^host_port='
+    line: host_port=8080
+
+- name: Set AWX to use docker compose in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^#use_docker_compose='
+    line: use_docker_compose=true
+
+- name: Set AWX docker compose dir in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^docker_compose_dir='
+    line: docker_compose_dir=/var/lib/awx
+
+- name: Set AWX pg_password in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^pg_password='
+    line: pg_password=asdQWE1234
+
+- name: Set AWX rabbitmq_password in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^rabbitmq_password='
+    line: rabbitmq_password=asdQWE1234
+
+- name: Set AWX rabbitmq_erlang_cookie in awx/installer/inventory
+  lineinfile:
+    path: //usr/local/src/awx/installer/inventory
+    regexp: '^rabbitmq_erlang_cookie='
+    line: rabbitmq_erlang_cookie=cookiemonster
+
+- name: Set AWX admin_user in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^admin_user='
+    line: admin_user=admin
+
+- name: Set AWX admin_password in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^admin_password='
+    line: admin_password=asdQWE1234
+
+- name: Set AWX secret_key in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^secret_key='
+    line: secret_key=266283f90e5ef54ceeb242575b922ccef160bad23bbb8861a777be97a9a6e53b
+    # Generated using openssl rand -hex 32
+
+- name: Uncomment AWX project dir in awx/installer/inventory
+  lineinfile:
+    path: /usr/local/src/awx/installer/inventory
+    regexp: '^#project_data_dir='
+    line: project_data_dir=/var/lib/awx/projects
+
+- name: Run ansible-playbook remotely with ansible
+  command: ansible-playbook -i /usr/local/src/awx/installer/inventory /usr/local/src/awx/installer/install.yml
+  become: yes
+  
+- name: Remove default nginx config
+  file: name=/etc/nginx/sites-enabled/default state=absent
+  become: yes
+
+- name: copy the nginx AWX config file
+  copy:
+    src: /etc/ansible/config/awx.conf
+    dest: /etc/nginx/sites-available/awx.conf
+  become: yes
+
+- name: create awx symlink
+  file:
+    src: /etc/nginx/sites-available/awx.conf
+    dest: /etc/nginx/sites-enabled/awx.conf
+    state: link
+  become: yes
+
+- name: start nginx
+  service:
+      name: nginx
+      state: started
+  become: yes
+
+- name: Allow all access to tcp port 80 (HTTP)
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+
+- name: Allow all access to tcp port 443 (HTTPS)
+  ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+
+- name: Allow all access to tcp port 22 (SSH)
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+
+- name: Enable Uncomplicated Firewall (UWF)
+  ufw:
+    state: enabled
+
+- name: "Installing software-properties-common"
+  apt: pkg=software-properties-common state=present
+
+- name: install certbot
+  apt: name=certbot state=present
+
+- name: Install Certbot's Nginx package
+  apt: name=python-certbot-nginx state=present
+
+- name: Install certificate for awx.quantfol.io with certbot
+  command: certbot --nginx -n --domains awx.quantfol.io
+  become: yes
