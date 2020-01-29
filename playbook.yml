@@ -1,6 +1,10 @@
----
 - hosts: all
   become: true
   roles:
   - basic
-  - awx
+
+- hosts: awxtower
+  become: true
+  roles:
+  - webserver
+  - awxserver
